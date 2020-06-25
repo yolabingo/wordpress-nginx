@@ -1,9 +1,15 @@
 # list of valid URLs used to generate wordpress.conf
+# commented URLs are in wordpress.conf-header
+# /index.php
+# /wp-comments-post.php
+# /wp-cron.php
+# /wp-links-opml.php
+# /wp-login.php
+# /wp-signup.php
+# /wp-trackback.php
+# /xmlrpc.php
 /wp-activate.php
-/wp-comments-post.php
-/wp-login.php
 /wp-mail.php
-/wp-signup.php
 /wp-admin/about.php
 /wp-admin/admin-ajax.php
 /wp-admin/admin-functions.php
