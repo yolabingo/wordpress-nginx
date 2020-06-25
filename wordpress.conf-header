@@ -1,0 +1,101 @@
+# vim: syntax=nginx
+
+server_tokens off;
+fastcgi_hide_header X-Powered-By;
+proxy_hide_header X-Powered-By;
+autoindex off;
+index index.php;
+
+# recommended security headers
+# add_header X-Frame-Options SAMEORIGIN;
+# add_header Strict-Transport-Security "max-age=31536000";
+# add_header X-Content-Type-Options nosniff;
+# add_header X-XSS-Protection "1; mode=block";
+
+location / {
+        deny all;
+}
+# append a slash if it looks like a slug but is missing the trailing slash
+location ~ (/[\w-%]+)+$ {
+        return 301 https://$host$request_uri/;
+}
+
+### BEGIN Pass directly to Wordpress ###
+# add "include snippets/wordpress-nginx/admin-whitelist-ips.conf;"
+# to site config to restrict the entire site, otherwise Wordpress pages are public
+location ~ ^$ {
+        try_files /dev/null /index.php?$args;
+}
+# Wordpress Permalinks have a trailing /
+location ~ /$ {
+        try_files /dev/null /index.php?$args;
+}
+location = /index.php {
+	include snippets/wordpress-nginx/php.conf;
+}
+### END Pass directly to Wordpress ###
+
+## default disable theme editor, cron, links, xmlrpc, trackback
+location ~ /wp-admin/network/theme-editor\.php$ {
+	return 301 /wp-admin/;
+}
+location ~ /wp-links-opml\.php$ {
+	return 301 /wp-admin/;
+}
+# recommended to "define('DISABLE_WP_CRON', 'true');" in wp-config.php and run hourly via cron/cli
+# "0 * * * *  php  /path/to/wp-cron.php"
+location ~ /wp-cron\.php$ {
+        deny all;
+}
+location ~ /xmlrpc\.php$ {
+        deny all;
+}
+location ~ /trackback\.php$ {
+        deny all;
+}
+
+### you may want to customize a few common features - login, comments, signup, links
+# remove "include snippets/wordpress-nginx/admin-whitelist-ips.conf;" from these
+# if you want to allow public login, signup, or comments
+# woo commerce requires public login/signup
+#
+#
+location ~ /wp-login\.php$ {
+	include snippets/wordpress-nginx/admin-whitelist-ips.conf;
+	include snippets/wordpress-nginx/php.conf;
+}
+location ~ /wp-signup\.php$ {
+	include snippets/wordpress-nginx/admin-whitelist-ips.conf;
+	include snippets/wordpress-nginx/php.conf;
+}
+location ~ /wp-comments-post\.php$ {
+	include snippets/wordpress-nginx/admin-whitelist-ips.conf;
+	include snippets/wordpress-nginx/php.conf;
+}
+
+# allow static content
+location ~* /wp-(admin|content|includes)/.*\.(ai|bmp|css|doc|eot|f4l|flv|gif|gz|jpe?g|js|json|mov|mp3|mp4|mpg|pages|pdf|png|ppt|psd|qt|svg|ttc|ttf|txt|wav|wmv|woff|woff2|xls|zip)$ {
+	include snippets/wordpress-nginx/static.conf;
+}
+location ~* /(autodiscover\.xml|favicon\.ico|robots.txt)$ {
+	log_not_found off;
+	access_log    off;
+	include snippets/wordpress-nginx/static.conf;
+}
+location ~ /(\.|readme\.html|license\.txt|wp-config\.php\.tmpl)$ {
+	deny all;
+}
+# allow Wordpress to generate sitemaps
+location ~ /sitemap.*\.xml(\.gz)?$ {
+        try_files $uri /index.php?$args;
+}
+# allow Let's Encrypt
+# certbot certonly --webroot -d example.com -w /var/www --deploy-hook "/usr/bin/systemctl reload nginx.service"
+location ^~ /.well-known/acme-challenge/ {
+        allow       all;
+    	root        /var/www;
+	include snippets/wordpress-nginx/static.conf;
+}
+
+### wordpress urls below  ###
+
