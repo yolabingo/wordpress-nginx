@@ -2,7 +2,7 @@
 
 Quickstart
 ----------
-Assumes Debian's /etc/nginx layout, but will work on any Nginx/PHP FPM server.
+Assumes Debian/Ubuntu /etc/nginx layout, so modify as needed to fit your directory structure.
 
 Clone this repo to /etc/nginx/snippets
 
@@ -86,7 +86,7 @@ Benefits
 - whitelist of valid Wordpress \*.php URLs eliminates many PHP exploits
 - performance and security benefits over attempting such restrictions in a Wordpress plugin
 
-This patches a security hole in the common PHP configuration in both Apache
+This config patches a potential security hole in the common PHP configuration in both Apache
 ```apache
 <FilesMatch ".+\.ph(ar|p|tml)$">
     SetHandler "proxy:unix:/run/php/php7.3-fpm.sock"
@@ -100,5 +100,5 @@ location ~ \.php$ {
     fastcgi_pass php;
 }
 ```
-the web server will execute any .php file it encounters, which allows attackers to hide backdoor php files.
-
+in which web server will execute any .php file it encounters. 
+Attackers who gain access will often hide backdoor php files in a site.
