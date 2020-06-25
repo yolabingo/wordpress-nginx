@@ -19,7 +19,13 @@ location / {
 location ~ (/[\w-%]+)+$ {
         return 301 https://$host$request_uri/;
 }
-
+# allow Let's Encrypt
+# certbot certonly --webroot -d example.com -w /var/www --deploy-hook "/usr/bin/systemctl reload nginx.service"
+location ^~ ^/.well-known/acme-challenge/ {
+        allow       all;
+    	root        /var/www;
+	include     snippets/wordpress-nginx/static.conf;
+}
 ### BEGIN Pass directly to Wordpress ###
 # add "include snippets/wordpress-nginx/admin-whitelist-ips.conf;"
 # to site config to restrict the entire site, otherwise Wordpress pages are public
@@ -31,7 +37,7 @@ location ~ /$ {
         try_files /dev/null /index.php?$args;
 }
 location = /index.php {
-	include snippets/wordpress-nginx/php.conf;
+	include    snippets/wordpress-nginx/php.conf;
 }
 ### END Pass directly to Wordpress ###
 
@@ -74,10 +80,10 @@ location ~ /wp-comments-post\.php$ {
 }
 
 # allow static content
-location ~* /wp-(admin|content|includes)/.*\.(ai|bmp|css|doc|eot|f4l|flv|gif|gz|jpe?g|js|json|mov|mp3|mp4|mpg|pages|pdf|png|ppt|psd|qt|svg|ttc|ttf|txt|wav|wmv|woff|woff2|xls|zip)$ {
+location ~* /wp-(admin|content|includes)/.*\.(ai|bmp|css|doc|eot|f4l|flv|gif|gz|html?|jpe?g|js|json|mov|mp3|mp4|mpg|pages|pdf|png|ppt|psd|qt|svg|ttc|ttf|txt|wav|wmv|woff|woff2|xls|zip)$ {
 	include snippets/wordpress-nginx/static.conf;
 }
-location ~* /(autodiscover\.xml|favicon\.ico|robots.txt)$ {
+location ~* /(autodiscover\.xml|favicon\.ico|robots\.txt)$ {
 	log_not_found off;
 	access_log    off;
 	include snippets/wordpress-nginx/static.conf;
@@ -89,13 +95,5 @@ location ~ /(\.|readme\.html|license\.txt|wp-config\.php\.tmpl)$ {
 location ~ /sitemap.*\.xml(\.gz)?$ {
         try_files $uri /index.php?$args;
 }
-# allow Let's Encrypt
-# certbot certonly --webroot -d example.com -w /var/www --deploy-hook "/usr/bin/systemctl reload nginx.service"
-location ^~ /.well-known/acme-challenge/ {
-        allow       all;
-    	root        /var/www;
-	include snippets/wordpress-nginx/static.conf;
-}
-
-### wordpress urls below  ###
+### restricted wordpress urls below  ###
 
