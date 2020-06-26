@@ -20,7 +20,7 @@ location ~ (/[\w-%]+)+$ {
         return 301 https://$host$request_uri/;
 }
 # allow Let's Encrypt
-# certbot certonly --webroot -d example.com -w /var/www --deploy-hook "/usr/bin/systemctl reload nginx.service"
+# certbot certonly --webroot -d example.com -w /var/www --deploy-hook "systemctl reload nginx.service"
 location ^~ ^/.well-known/acme-challenge/ {
         allow       all;
     	root        /var/www;
