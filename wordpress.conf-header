@@ -15,16 +15,16 @@ index index.php;
 location / {
         deny all;
 }
-# append a slash if it looks like a slug but is missing the trailing slash
-location ~ (/[\w-%]+)+$ {
-        return 301 https://$host$request_uri/;
-}
 # allow Let's Encrypt
 # certbot certonly --webroot -d example.com -w /var/www --deploy-hook "systemctl reload nginx.service"
-location ^~ ^/.well-known/acme-challenge/ {
+location ~ ^/.well-known/acme-challenge/ {
         allow       all;
     	root        /var/www;
 	include     snippets/wordpress-nginx/static.conf;
+}
+# append a slash if it looks like a slug but is missing the trailing slash
+location ~ (/[\w-%]+)+$ {
+        return 301 https://$host$request_uri/;
 }
 ### BEGIN Pass directly to Wordpress ###
 # add "include snippets/wordpress-nginx/admin-whitelist-ips.conf;"
