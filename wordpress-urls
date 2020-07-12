@@ -31,6 +31,8 @@
 /wp-admin/link-add.php
 /wp-admin/link-manager.php
 /wp-admin/link.php
+/wp-admin/load-scripts.php
+/wp-admin/load-styles.php
 /wp-admin/media-new.php
 /wp-admin/media-upload.php
 /wp-admin/media.php
